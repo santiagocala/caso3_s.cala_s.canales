@@ -12,8 +12,14 @@ public class ClienteNoSeguro {
     private static InputStreamReader in;
 	
 	public static void main(String[] args){
+		// Ver protocolo para entender la transferencia de mensajes. 
 		alistarConexion();
 		pw.println("HOLA");
+		try{
+			bf.readLine();
+		} catch(Exception e) {
+			e.printStackTrace();
+		}
 		
 		
 	}
