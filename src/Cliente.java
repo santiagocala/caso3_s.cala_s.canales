@@ -34,7 +34,6 @@ public class Cliente{
 
 
     public Cliente(){
-
     }
 
 
@@ -165,7 +164,7 @@ public class Cliente{
         /*
          * ETAPA 1: 
          */
-    	//establecer conexión
+    	//establecer conexiï¿½n
         alistarConexion();
         pw.println("HOLA");
         
@@ -212,7 +211,7 @@ public class Cliente{
                 generateSimetricKey();
 
 
-                //cifrar KS con la llave publica pk: cifrado asimétrico
+                //cifrar KS con la llave publica pk: cifrado asimï¿½trico
                 
                 String ksCifrada = new String(KS.getEncoded());
                 byte[] bytesksCifrada = cifrarAsimetrico(PK,RSA,ksCifrada);
@@ -237,20 +236,19 @@ public class Cliente{
                 	pw.println("ERROR");
                 	                	
                 
-                
                 //ingreso de datos
                 Scanner in = new Scanner(System.in);
-                System.out.println("Ingrese su cédula de ciudadanía: ");
+                System.out.println("Ingrese su cï¿½dula de ciudadanï¿½a: ");
                 String cc = in.nextLine();
-                System.out.println("Ingrese su contraseña: ");
-                String contraseña = in.nextLine();
+                System.out.println("Ingrese su contraseï¿½a: ");
+                String contrasena = in.nextLine();
                 
                 String CCcifrada = DatatypeConverter.printBase64Binary(cifrarSimetrico(KS, new String(sumar4s(cc))));
-                String contraseñaCifrada = DatatypeConverter.printBase64Binary(cifrarSimetrico(KS, new String(sumar4s(contraseña))));
+                String contrasenaCifrada = DatatypeConverter.printBase64Binary(cifrarSimetrico(KS, new String(sumar4s(contrasena))));
                 
-                //envío de datos
+                //envï¿½o de datos
                 pw.println(CCcifrada);
-                pw.println(contraseñaCifrada);
+                pw.println(contrasenaCifrada);
                 
                 
                 //ETAPA 4
@@ -262,22 +260,12 @@ public class Cliente{
                 byte[] valor = descifrarSimetrico(sumar4s(valorCifradoKS),KS);
                 String hmac = DatatypeConverter.printBase64Binary(descifrarAsimetrico(PK, RSA, sumar4s(hmacCifradoPK)));
                 
-                
-                	
+               	
 				String hmacGeneradoPorValorRecibido =DatatypeConverter.printBase64Binary(hash(valor));
                 	 
 				if(hmacGeneradoPorValorRecibido.equals(hmac))pw.println("OK");
 				else pw.println("ERROR");
 					
-				
-                
-                
-                
-                
-
-
-
-
 
             } catch (CertificateException e) {
                 e.printStackTrace();
@@ -286,18 +274,6 @@ public class Cliente{
         } catch (IOException e) {
             e.printStackTrace();
         }
-
-
-
-
-
-
-
-
-
-
-
-
 
         //Cerrar
         pw.close();
@@ -311,8 +287,6 @@ public class Cliente{
 
     }
 
-    
-
     private static byte[] sumar4s(String rellenar) {
     	String newString = rellenar;
 		while(newString.length() % 4 != 0){
@@ -323,17 +297,13 @@ public class Cliente{
 	}
 
 
-	
-
-
 	private static void alistarConexion() {
         try {
 
-            connection = new Socket("localhost", 6789);
+            connection = new Socket("localhost", 6666);
             pw = new PrintWriter(connection.getOutputStream(), true);
             in = new InputStreamReader(connection.getInputStream());
             bf = new BufferedReader(in);
-
 
 
         } catch (IOException e) {
