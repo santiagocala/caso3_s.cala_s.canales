@@ -7,6 +7,7 @@ import java.net.Socket;
 import java.security.NoSuchAlgorithmException;
 import java.util.Scanner;
 
+
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 
@@ -33,6 +34,7 @@ public class ClienteNoSeguro {
 		} catch(Exception e) {
 			e.printStackTrace();
 		}
+		
 		// Se envían los algortimos de cifrado, simétrico, asimétrico y MAC 
 		pw.println(ALGORITMOS +  ":" + SIMETRICO + ":" + ASIMETRICO + ":" + HMAC);
 		String mensaje = "";
@@ -106,7 +108,7 @@ public class ClienteNoSeguro {
 	private static void alistarConexion() {
 		// Se crea la conexión y los elementos que servirán para la comunicación. 
 		try {
-			connection = new Socket("localhost", 6667);
+			connection = new Socket("localhost", 6789);
 			pw = new PrintWriter(connection.getOutputStream(), true);
 			in = new InputStreamReader(connection.getInputStream());
 			bf = new BufferedReader(in);

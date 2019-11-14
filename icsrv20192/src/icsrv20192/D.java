@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.lang.management.ManagementFactory;
 import java.net.Socket;
 import java.security.KeyPair;
 import java.security.cert.X509Certificate;
@@ -12,9 +13,13 @@ import java.util.Random;
 
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
+import javax.management.Attribute;
+import javax.management.AttributeList;
+import javax.management.MBeanServer;
+import javax.management.ObjectName;
 import javax.xml.bind.DatatypeConverter;
 
-public class D extends Thread {
+public class D extends Thread implements Runnable{
 
 	public static final String OK = "OK";
 	public static final String ALGORITMOS = "ALGORITMOS";
@@ -45,8 +50,8 @@ public class D extends Thread {
 		sc = csP;
 		dlg = new String("delegado " + idP + ": ");
 		try {
-		mybyte = new byte[520]; 
-		mybyte = certSer.getEncoded();
+			mybyte = new byte[520];
+			mybyte = certSer.getEncoded();
 		} catch (Exception e) {
 			System.out.println("Error creando encoded del certificado para el thread" + dlg);
 			e.printStackTrace();
@@ -143,6 +148,7 @@ public class D extends Thread {
 				/***** Fase 4: *****/
 				cadenas[3] = "";
 				linea = dc.readLine();
+				long comienzoTransaccion = System.currentTimeMillis();
 				byte[] llaveSimetrica = S.ad(
 						toByteArray(linea), 
 						keyPairServidor.getPrivate(), algoritmos[2] );
@@ -195,6 +201,7 @@ public class D extends Thread {
 				byte [] hmac = S.hdg(valorByte, simetrica, algoritmos[3]);
 				byte[] recibo = S.ae(hmac, keyPairServidor.getPrivate(), algoritmos[2]);
 				ac.println(toHexString(recibo));
+				long finalTransaccion = System.currentTimeMillis();
 				System.out.println(dlg + "envio hmac cifrado con llave privada del servidor. continuado.");
 				
 				cadenas[7] = "";
@@ -208,9 +215,15 @@ public class D extends Thread {
 				}
 		        sc.close();
 
-			    for (int i=0;i<numCadenas;i++) {
-				    escribirMensaje(cadenas[i]);
-			    }
+				synchronized(file) {
+					for (int i = 0; i < numCadenas; i++) {
+						escribirMensaje(cadenas[i]);
+					}
+					long tiempoTransaccion = finalTransaccion-comienzoTransaccion;
+					escribirMensaje(" tiempo de transaccion: " + tiempoTransaccion);
+					escribirMensaje(getSystemCpuLoad() + "");
+				}
+
 	        } catch (Exception e) {
 	          e.printStackTrace();
 	        }
@@ -222,6 +235,19 @@ public class D extends Thread {
 
 	public static byte[] toByteArray(String s) {
 	    return DatatypeConverter.parseBase64Binary(s);
+	}
+
+	public double getSystemCpuLoad() throws Exception {
+		MBeanServer mbs = ManagementFactory.getPlatformMBeanServer();
+		ObjectName name = ObjectName.getInstance("java.lang:type=OperatingSystem");
+		AttributeList list = mbs.getAttributes(name, new String[]{ "SystemCpuLoad" });
+		if (list.isEmpty()) return Double.NaN;
+		Attribute att = (Attribute)list.get(0);
+		Double value = (Double)att.getValue();
+		// usually takes a couple of seconds before we get real values
+		if (value == -1.0) return Double.NaN;
+		// returns a percentage value with 1 decimal point precision
+		return ((int)(value * 1000) / 10.0);
 	}
 	
 }
