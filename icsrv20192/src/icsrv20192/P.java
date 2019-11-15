@@ -19,19 +19,26 @@ public class P {
 	private static final String MAESTRO = "MAESTRO: ";
 	private static X509Certificate certSer; /* acceso default */
 	private static KeyPair keyPairServidor; /* acceso default */
-	
+
 	/**
 	 * @param args
 	 */
 
 	public static void main(String[] args) throws Exception{
 		// TODO Auto-generated method stub
-
-		System.out.println(MAESTRO + "Establezca puerto de conexion:");
 		InputStreamReader isr = new InputStreamReader(System.in);
 		BufferedReader br = new BufferedReader(isr);
+
+		System.out.println(MAESTRO + "Establezca puerto de conexion:");
 		int ip = Integer.parseInt(br.readLine());
-		System.out.println(MAESTRO + "Empezando servidor maestro en puerto " + ip);
+
+		System.out.println("1. Servidor Seguro");
+		System.out.println("2. Servidor Inseguro");
+
+		String decision = br.readLine();
+
+
+		System.out.println(MAESTRO + "Empezando servidor ...");
 		// Adiciona la libreria como un proveedor de seguridad.
 		Security.addProvider(new org.bouncycastle.jce.provider.BouncyCastleProvider());
 
@@ -59,16 +66,28 @@ public class P {
 
 		//pool de threads
 		int numeroDeNucleos = Runtime.getRuntime().availableProcessors();
-		ExecutorService executer = Executors.newFixedThreadPool(1);
+		ExecutorService executer = Executors.newFixedThreadPool(numeroDeNucleos);
         
 		for (int i=0;true;i++) {
 			try { 
 				Socket sc = ss.accept();
 				System.out.println(MAESTRO + "Cliente " + i + " aceptado.");
 				//pool.execute(new D(sc,i));
-				D d = new D(sc,i);
+				if(decision.equals("1")){
+					D d = new D(sc,i);
+					executer.execute(d);
+				}
+				else if(decision.equals("2")){
+					DInseguro d = new DInseguro(sc,i);
+					executer.execute(d);
+				}
+				else{
+					System.out.println("no sea terco, es 1 o 2");
+					return;
+				}
+
 				//ss.setSoTimeout(10000000);//termina la transacción si el cliente se demora mucho
-				executer.execute(d);
+
 
 			} catch (IOException e) {
 				System.out.println(MAESTRO + "Error creando el socket cliente.");

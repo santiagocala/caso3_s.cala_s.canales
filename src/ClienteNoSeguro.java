@@ -53,7 +53,7 @@ public class ClienteNoSeguro {
 			bf.readLine();
 			// Se genera una llave simétrica y se manda por el canal y después el reto. 
 			SecretKey sk = generateSimetricKey();
-			pw.println(sk);
+			pw.println(sk.getEncoded()); //revisar
 			pw.println("reto");
 		} catch(Exception e){
 			e.printStackTrace();
@@ -70,6 +70,7 @@ public class ClienteNoSeguro {
 		if(mensaje != "reto"){
 			respuesta = "ERROR";
 			System.out.println("Se produjo un error después de leer el reto");
+			return;
 		}
 		else{
 			respuesta = "OK";
@@ -108,7 +109,7 @@ public class ClienteNoSeguro {
 	private static void alistarConexion() {
 		// Se crea la conexión y los elementos que servirán para la comunicación. 
 		try {
-			connection = new Socket("localhost", 6789);
+			connection = new Socket("localhost", 6666);
 			pw = new PrintWriter(connection.getOutputStream(), true);
 			in = new InputStreamReader(connection.getInputStream());
 			bf = new BufferedReader(in);

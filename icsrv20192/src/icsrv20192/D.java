@@ -220,7 +220,7 @@ public class D extends Thread implements Runnable{
 						escribirMensaje(cadenas[i]);
 					}
 					long tiempoTransaccion = finalTransaccion-comienzoTransaccion;
-					escribirMensaje(" tiempo de transaccion: " + tiempoTransaccion);
+					escribirMensaje(" tiempo de transaccion: " + tiempoTransaccion + " milisegundos");
 					escribirMensaje(" cpu load: " + getSystemCpuLoad());
 				}
 

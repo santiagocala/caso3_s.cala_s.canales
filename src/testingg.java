@@ -22,8 +22,10 @@ public class testingg {
     
 	public static void main(String args[]){
 		
-		Cliente c = new Cliente();
-		c.execute();
+//		Cliente c = new Cliente();
+//		c.execute();
+		SecretKey sk = generateSimetricKey();
+		System.out.println(sk.getEncoded().length);
 		
 	}
 	private static String sumar0s(String m) {
@@ -110,14 +112,14 @@ public class testingg {
     }
 
     //genera llaves con algoritmo AES
-    private static void generateSimetricKey(){
-        try {
-            keyGen = KeyGenerator.getInstance("AES");
-            KS = keyGen.generateKey();
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-        }
-    }
+    private static SecretKey generateSimetricKey(){
+		try {
+			keyGen = KeyGenerator.getInstance("AES");
+		} catch (NoSuchAlgorithmException e) {
+			e.printStackTrace();
+		}
+		return keyGen.generateKey();
+	}
     private static String sumar16s(String prueba) {
     	String newString = prueba;
 		while(newString.length() % 16 != 0){
