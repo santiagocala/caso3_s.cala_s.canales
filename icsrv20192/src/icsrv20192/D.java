@@ -32,7 +32,11 @@ public class D extends Thread implements Runnable{
 	public static final String REC = "recibio-";
 	public static final int numCadenas = 8;
 	private static int errores = 0;
-	private static int exitosos = 0;
+	private final static int TOTAL_TRANS = 400;
+	private static double acumuladoCPU = 0;
+	private static double acumuladoTiempoTransaccion = 0;
+
+
 
 	// Atributos
 	private Socket sc = null;
@@ -103,7 +107,8 @@ public class D extends Thread implements Runnable{
 				cadenas[0] = "Fase1: ";
 				if (!linea.equals(HOLA)) {
 					ac.println(ERROR);
-					errores++;
+
+					errores();
 				    sc.close();
 					throw new Exception(dlg + ERROR + REC + linea +"-terminando.");
 				} else {
@@ -118,7 +123,7 @@ public class D extends Thread implements Runnable{
 				if (!(linea.contains(SEPARADOR) && linea.split(SEPARADOR)[0].equals(ALGORITMOS))) {
 					ac.println(ERROR);
 					sc.close();
-					errores++;
+					errores();
 					throw new Exception(dlg + ERROR + REC + linea +"-terminando.");
 				}
 				
@@ -126,16 +131,19 @@ public class D extends Thread implements Runnable{
 				if (!algoritmos[1].equals(S.DES) && !algoritmos[1].equals(S.AES) &&
 					!algoritmos[1].equals(S.BLOWFISH) && !algoritmos[1].equals(S.RC4)){
 					ac.println(ERROR);
+					errores();
 					sc.close();
 					throw new Exception(dlg + ERROR + "Alg.Simetrico" + REC + algoritmos + "-terminando.");
 				}
 				if (!algoritmos[2].equals(S.RSA) ) {
 					ac.println(ERROR);
 					sc.close();
+					errores();
 					throw new Exception(dlg + ERROR + "Alg.Asimetrico." + REC + algoritmos + "-terminando.");
 				}
 				if (!validoAlgHMAC(algoritmos[3])) {
 					ac.println(ERROR);
+					errores();
 					sc.close();
 					throw new Exception(dlg + ERROR + "AlgHash." + REC + algoritmos + "-terminando.");
 				}
@@ -175,7 +183,7 @@ public class D extends Thread implements Runnable{
 					System.out.println(cadenas[4]);
 				} else {
 					sc.close();
-					errores++;
+					errores();
 					throw new Exception(dlg + ERROR + "en confirmacion de llave simetrica." + REC + "-terminando.");
 				}
 				
@@ -207,16 +215,17 @@ public class D extends Thread implements Runnable{
 				byte[] recibo = S.ae(hmac, keyPairServidor.getPrivate(), algoritmos[2]);
 				ac.println(toHexString(recibo));
 				long finalTransaccion = System.currentTimeMillis();
+				registrarTiempo(finalTransaccion-comienzoTransaccion);
 				System.out.println(dlg + "envio hmac cifrado con llave privada del servidor. continuado.");
-				
+
 				cadenas[7] = "";
 				linea = dc.readLine();	
 				if (linea.equals(OK)) {
-					errores++;
+					registrarCpu();
 					cadenas[7] = dlg + "Terminando exitosamente." + linea;
 					System.out.println(cadenas[7]);
 				} else {
-					exitosos++;
+					errores();
 					cadenas[7] = dlg + "Terminando con error" + linea;
 			        System.out.println(cadenas[7]);
 				}
@@ -226,15 +235,23 @@ public class D extends Thread implements Runnable{
 					for (int i = 0; i < numCadenas; i++) {
 						escribirMensaje(cadenas[i]);
 					}
-					long tiempoTransaccion = finalTransaccion-comienzoTransaccion;
-					escribirMensaje(" tiempo de transaccion: " + tiempoTransaccion + " milisegundos");
-					escribirMensaje(" cpu load: " + getSystemCpuLoad());
-					escribirMensaje("porcentaje de error: " + errores/(errores + exitosos) );
+
+					escribirMensaje(" tiempo de transaccion: " + acumuladoTiempoTransaccion/TOTAL_TRANS + " milisegundos / total");
+					escribirMensaje("error : " + errores );
+					escribirMensaje(" cpu load acumulado: " + acumuladoCPU/TOTAL_TRANS);
+
+
 				}
 
 	        } catch (Exception e) {
 	          e.printStackTrace();
 	        }
+	}
+	public synchronized void registrarCpu() throws Exception {
+		acumuladoCPU += getSystemCpuLoad();
+	}
+	public synchronized void registrarTiempo(long tiempo){
+		acumuladoTiempoTransaccion += tiempo;
 	}
 	
 	public static String toHexString(byte[] array) {
@@ -256,6 +273,10 @@ public class D extends Thread implements Runnable{
 		if (value == -1.0) return Double.NaN;
 		// returns a percentage value with 1 decimal point precision
 		return ((int)(value * 1000) / 10.0);
+	}
+
+	private synchronized void errores(){
+			errores++;
 	}
 	
 }

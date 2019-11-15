@@ -12,8 +12,8 @@ public class Generator {
 
     public Generator(String decision){
         Task work = createTask(decision);
-        int numberOfTasks = 100;
-        int gapBetweenTasks = 1000;
+        int numberOfTasks = 400;
+        int gapBetweenTasks = 20;
         generator = new LoadGenerator("Client - Server Load Tests ", numberOfTasks,work,gapBetweenTasks);
         generator.generate();
     }

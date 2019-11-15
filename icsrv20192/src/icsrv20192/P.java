@@ -19,6 +19,7 @@ public class P {
 	private static final String MAESTRO = "MAESTRO: ";
 	private static X509Certificate certSer; /* acceso default */
 	private static KeyPair keyPairServidor; /* acceso default */
+	private static final int THREADS = 2;
 
 	/**
 	 * @param args
@@ -79,8 +80,8 @@ public class P {
 		System.out.println(MAESTRO + "Socket creado.");
 
 		//pool de threads
-		int numeroDeNucleos = Runtime.getRuntime().availableProcessors();
-		ExecutorService executer = Executors.newFixedThreadPool(numeroDeNucleos);
+		//int numeroDeNucleos = Runtime.getRuntime().availableProcessors();
+		ExecutorService executer = Executors.newFixedThreadPool(THREADS);
         
 		for (int i=0;true;i++) {
 			try { 
