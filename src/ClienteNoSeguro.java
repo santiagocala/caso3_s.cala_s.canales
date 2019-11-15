@@ -53,7 +53,7 @@ public class ClienteNoSeguro {
 			bf.readLine();
 			// Se genera una llave simétrica y se manda por el canal y después el reto. 
 			SecretKey sk = generateSimetricKey();
-			pw.println(sk.getEncoded()); //revisar
+			pw.println(sk.getEncoded()); //revisars
 			pw.println("reto");
 		} catch(Exception e){
 			e.printStackTrace();

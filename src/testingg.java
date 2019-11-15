@@ -25,7 +25,7 @@ public class testingg {
 //		Cliente c = new Cliente();
 //		c.execute();
 		SecretKey sk = generateSimetricKey();
-		System.out.println(sk.getEncoded().length);
+		System.out.println(sk.getEncoded());
 		
 	}
 	private static String sumar0s(String m) {
