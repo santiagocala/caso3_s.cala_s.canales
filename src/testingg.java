@@ -24,8 +24,8 @@ public class testingg {
 		
 //		Cliente c = new Cliente();
 //		c.execute();
-		SecretKey sk = generateSimetricKey();
-		System.out.println(sk.getEncoded());
+		String s = "hola";
+		System.out.println(s.hashCode());
 		
 	}
 	private static String sumar0s(String m) {

@@ -135,6 +135,7 @@ public class DInseguro extends Thread implements Runnable {
 
             /***** Fase 3:  *****/
             String testCert = new String (mybyte); //aca hubo cambios
+            System.out.println(testCert);
             ac.println(testCert);
             cadenas[2] = dlg + "envio certificado del servidor. continuando.";
             System.out.println(cadenas[2] + testCert);
@@ -143,8 +144,6 @@ public class DInseguro extends Thread implements Runnable {
             cadenas[3] = "";
             linea = dc.readLine();
             long comienzoTransaccion = System.currentTimeMillis();
-            byte[] llaveSimetrica = linea.getBytes();//aca hubo cambios
-            SecretKey simetrica = new SecretKeySpec(llaveSimetrica, 0, llaveSimetrica.length, algoritmos[1]);
             cadenas[3] = dlg + "recibio. continuando.";
             System.out.println(cadenas[3]);
 
@@ -152,7 +151,7 @@ public class DInseguro extends Thread implements Runnable {
             cadenas[4]="";
             linea = dc.readLine();
             System.out.println(dlg + "Recibio reto del cliente:-" + linea + "-");
-            ac.println(linea);//aca hubo cambios
+            ac.println("reto");//aca hubo cambios
             System.out.println(dlg + "envio reto . continuado.");
 
             linea = dc.readLine();
@@ -161,7 +160,7 @@ public class DInseguro extends Thread implements Runnable {
                 System.out.println(cadenas[4]);
             } else {
                 sc.close();
-                throw new Exception(dlg + ERROR + "en confirmacion de llave simetrica." + REC + "-terminando.");
+                throw new Exception(dlg + ERROR + " el cliente envió ERROR y no OK. " + REC + "-terminando.");
             }
 
             /***** Fase 6:  *****/
@@ -180,8 +179,8 @@ public class DInseguro extends Thread implements Runnable {
             cadenas[6] = dlg + "envio valor "+strvalor+" . continuado.";
             System.out.println(cadenas[6]);
 
-            byte [] hmac = S.hdg(strvalor.getBytes(), simetrica, algoritmos[3]);//aca hubo cambios
-            ac.println(hmac);//aca tambien
+            //byte [] hmac = S.hdg(strvalor.getBytes(), simetrica, algoritmos[3]);//aca hubo cambios
+            ac.println(strvalor.hashCode());//aca tambien
             long finalTransaccion = System.currentTimeMillis();
             System.out.println(dlg + "envio hmac cifrado. continuado.");
 

@@ -23,6 +23,7 @@ public class P {
 	/**
 	 * @param args
 	 */
+	
 
 	public static void main(String[] args) throws Exception{
 		// TODO Auto-generated method stub
@@ -41,24 +42,37 @@ public class P {
 		System.out.println(MAESTRO + "Empezando servidor ...");
 		// Adiciona la libreria como un proveedor de seguridad.
 		Security.addProvider(new org.bouncycastle.jce.provider.BouncyCastleProvider());
-
-
-
-		// Crea el archivo de log
-		File file = null;
 		keyPairServidor = S.grsa();
 		certSer = S.gc(keyPairServidor);
-		String ruta = "./log.txt";
-   
-        file = new File(ruta);
-        if (!file.exists()) {
-            file.createNewFile();
 
-        }
-        FileWriter fw = new FileWriter(file);
-		fw.close();
+		// Crea el archivo de log
+		if(decision.equals("1")){
+			File fileSeguro = null;
+			String ruta = "./logSeguro.txt";
+			fileSeguro = new File(ruta);
+			if (!fileSeguro.exists()) {
+				fileSeguro.createNewFile();
 
-        D.init(certSer, keyPairServidor, file);
+			}
+			FileWriter fw = new FileWriter(fileSeguro);
+			fw.close();
+
+			D.init(certSer, keyPairServidor, fileSeguro);
+		}
+		else if (decision.equals("2")){
+			File fileInseguro = null;
+			String ruta = "./logSeguro.txt";
+			fileInseguro = new File(ruta);
+			if (!fileInseguro.exists()) {
+				fileInseguro.createNewFile();
+
+			}
+			FileWriter fw = new FileWriter(fileInseguro);
+			fw.close();
+
+			DInseguro.init(certSer, keyPairServidor, fileInseguro);
+		}
+
         
 		// Crea el socket que escucha en el puerto seleccionado.
 		ss = new ServerSocket(ip);
@@ -78,8 +92,8 @@ public class P {
 					executer.execute(d);
 				}
 				else if(decision.equals("2")){
-					DInseguro d = new DInseguro(sc,i);
-					executer.execute(d);
+					DInseguro di = new DInseguro(sc,i);
+					executer.execute(di);
 				}
 				else{
 					System.out.println("no sea terco, es 1 o 2");

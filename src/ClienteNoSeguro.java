@@ -10,6 +10,11 @@ import java.util.Scanner;
 
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
+import javax.xml.bind.DatatypeConverter;
+
+import org.bouncycastle.crypto.digests.SHA256Digest;
+import org.bouncycastle.crypto.macs.HMac;
+import org.bouncycastle.crypto.params.KeyParameter;
 
 
 public class ClienteNoSeguro {
@@ -23,6 +28,7 @@ public class ClienteNoSeguro {
 	private static String SIMETRICO = "AES";
 	private static String HMAC = "HMACSHA256";
 	private static KeyGenerator keyGen;
+	private static SecretKey sk;
 
 
 	public static void main(String[] args){
@@ -52,9 +58,10 @@ public class ClienteNoSeguro {
 			// Acá se recibe el certificado, pero en realidad no se hace nada con él
 			bf.readLine();
 			// Se genera una llave simétrica y se manda por el canal y después el reto. 
-			SecretKey sk = generateSimetricKey();
-			pw.println(sk.getEncoded()); //revisars
-			pw.println("reto");
+			
+			pw.println(new String(generateSimetricKey().getEncoded()) ); 
+			//el reto
+			pw.println("santiycan");
 		} catch(Exception e){
 			e.printStackTrace();
 		}
@@ -67,35 +74,40 @@ public class ClienteNoSeguro {
 			e.printStackTrace();
 		}
 		// Verifica que el servidor haya respondido el mismo reto que enviaron. 
-		if(mensaje != "reto"){
-			respuesta = "ERROR";
-			System.out.println("Se produjo un error después de leer el reto");
-			return;
-		}
-		else{
-			respuesta = "OK";
-		}
-		pw.println(respuesta);
+//		if(mensaje.equals("santiycan")){
+//			respuesta = "OK";
+//		}
+//		else{
+//			respuesta = "ERROR";
+//		}
+//		System.out.println(respuesta);
+		pw.println("OK");
 		// Se abre un canal por donde el usuario puede ingresar su cédula y contraseña
-		Scanner scanner = new Scanner(System.in);
-		System.out.println("Ingrese su cédula: ");
-		String cedula = scanner.nextLine();
-		System.out.println("Ingrese su contraseña: ");
-		String contrasena = scanner.nextLine();
+//		Scanner scanner = new Scanner(System.in);
+//		System.out.println("Ingrese su cédula: ");
+//		String cedula = scanner.nextLine();
+//		System.out.println("Ingrese su contraseña: ");
+//		String contrasena = scanner.nextLine();
+//		scanner.close();
 		//Se envían la cédula y la contraseña por el canal de comunicación
-		pw.println(cedula);
-		pw.println(contrasena);
-		scanner.close();
+		pw.println("1234");
+		pw.println("1234");
 		String valorCorrecto = "";
 		try{
 			//Se recibe el valor y con ese valor se calcula el hash
 			String valor = bf.readLine();
-			int hashValorLocal = valor.hashCode();
+			String hashValorLocal = valor.hashCode() + "";
+			System.out.println(valor);
 			//Se recibe el hash del valor que se mandó 
-			int hashValorExterno = Integer.parseInt(bf.readLine());
+			String hashValorExterno = bf.readLine();
+			System.out.println(hashValorExterno);
 			//Se verifica que los hashes sean iguales 
-			if(hashValorLocal == hashValorExterno) valorCorrecto = "OK";
-			else valorCorrecto = "ERROR";
+			if(hashValorLocal.contentEquals(hashValorExterno)) {
+				valorCorrecto = "OK";
+			}
+			else {
+				valorCorrecto = "ERROR";
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -129,4 +141,11 @@ public class ClienteNoSeguro {
 		}
 		return keyGen.generateKey();
 	}
+	public static String toHexString(byte[] array) {
+        return DatatypeConverter.printBase64Binary(array);
+    }
+	public static byte[] toByteArray(String s) {
+        return DatatypeConverter.parseBase64Binary(s);
+    }
+	
 }
