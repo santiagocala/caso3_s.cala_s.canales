@@ -25,6 +25,8 @@ public class DInseguro extends Thread implements Runnable {
     public static final String ERROR = "ERROR";
     public static final String REC = "recibio-";
     public static final int numCadenas = 8;
+    private static int errores = 0;
+    private static int exitosos = 0;
 
     // Atributos
     private Socket sc = null;
@@ -96,11 +98,13 @@ public class DInseguro extends Thread implements Runnable {
             if (!linea.equals(HOLA)) {
                 ac.println(ERROR);
                 sc.close();
+                errores++;
                 throw new Exception(dlg + ERROR + REC + linea +"-terminando.");
             } else {
                 ac.println(OK);
                 cadenas[0] = dlg + REC + linea + "-continuando.";
                 System.out.println(cadenas[0]);
+
             }
 
             /***** Fase 2:  *****/
@@ -109,6 +113,7 @@ public class DInseguro extends Thread implements Runnable {
             if (!(linea.contains(SEPARADOR) && linea.split(SEPARADOR)[0].equals(ALGORITMOS))) {
                 ac.println(ERROR);
                 sc.close();
+                errores++;
                 throw new Exception(dlg + ERROR + REC + linea +"-terminando.");
             }
 
@@ -159,6 +164,7 @@ public class DInseguro extends Thread implements Runnable {
                 cadenas[4] = dlg + "recibio confirmacion del cliente:"+ linea +"-continuado.";
                 System.out.println(cadenas[4]);
             } else {
+                errores++;
                 sc.close();
                 throw new Exception(dlg + ERROR + " el cliente envió ERROR y no OK. " + REC + "-terminando.");
             }
@@ -187,9 +193,11 @@ public class DInseguro extends Thread implements Runnable {
             cadenas[7] = "";
             linea = dc.readLine();
             if (linea.equals(OK)) {
+                exitosos++;
                 cadenas[7] = dlg + "Terminando exitosamente." + linea;
                 System.out.println(cadenas[7]);
             } else {
+                errores++;
                 cadenas[7] = dlg + "Terminando con error" + linea;
                 System.out.println(cadenas[7]);
             }
@@ -202,6 +210,7 @@ public class DInseguro extends Thread implements Runnable {
                 long tiempoTransaccion = finalTransaccion-comienzoTransaccion;
                 escribirMensaje(" tiempo de transaccion: " + tiempoTransaccion + " milisegundos");
                 escribirMensaje(" cpu load: " + getSystemCpuLoad());
+                escribirMensaje("porcentaje de error: " + errores/(errores + exitosos) );
             }
 
         } catch (Exception e) {

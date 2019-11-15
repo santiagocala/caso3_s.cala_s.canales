@@ -61,7 +61,7 @@ public class P {
 		}
 		else if (decision.equals("2")){
 			File fileInseguro = null;
-			String ruta = "./logSeguro.txt";
+			String ruta = "./logInseguro.txt";
 			fileInseguro = new File(ruta);
 			if (!fileInseguro.exists()) {
 				fileInseguro.createNewFile();

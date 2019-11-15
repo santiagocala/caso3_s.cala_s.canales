@@ -31,6 +31,8 @@ public class D extends Thread implements Runnable{
 	public static final String ERROR = "ERROR";
 	public static final String REC = "recibio-";
 	public static final int numCadenas = 8;
+	private static int errores = 0;
+	private static int exitosos = 0;
 
 	// Atributos
 	private Socket sc = null;
@@ -101,6 +103,7 @@ public class D extends Thread implements Runnable{
 				cadenas[0] = "Fase1: ";
 				if (!linea.equals(HOLA)) {
 					ac.println(ERROR);
+					errores++;
 				    sc.close();
 					throw new Exception(dlg + ERROR + REC + linea +"-terminando.");
 				} else {
@@ -115,6 +118,7 @@ public class D extends Thread implements Runnable{
 				if (!(linea.contains(SEPARADOR) && linea.split(SEPARADOR)[0].equals(ALGORITMOS))) {
 					ac.println(ERROR);
 					sc.close();
+					errores++;
 					throw new Exception(dlg + ERROR + REC + linea +"-terminando.");
 				}
 				
@@ -171,6 +175,7 @@ public class D extends Thread implements Runnable{
 					System.out.println(cadenas[4]);
 				} else {
 					sc.close();
+					errores++;
 					throw new Exception(dlg + ERROR + "en confirmacion de llave simetrica." + REC + "-terminando.");
 				}
 				
@@ -207,9 +212,11 @@ public class D extends Thread implements Runnable{
 				cadenas[7] = "";
 				linea = dc.readLine();	
 				if (linea.equals(OK)) {
+					errores++;
 					cadenas[7] = dlg + "Terminando exitosamente." + linea;
 					System.out.println(cadenas[7]);
 				} else {
+					exitosos++;
 					cadenas[7] = dlg + "Terminando con error" + linea;
 			        System.out.println(cadenas[7]);
 				}
@@ -222,6 +229,7 @@ public class D extends Thread implements Runnable{
 					long tiempoTransaccion = finalTransaccion-comienzoTransaccion;
 					escribirMensaje(" tiempo de transaccion: " + tiempoTransaccion + " milisegundos");
 					escribirMensaje(" cpu load: " + getSystemCpuLoad());
+					escribirMensaje("porcentaje de error: " + errores/(errores + exitosos) );
 				}
 
 	        } catch (Exception e) {

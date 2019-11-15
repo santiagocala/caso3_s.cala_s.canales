@@ -16,28 +16,32 @@ import org.bouncycastle.crypto.digests.SHA256Digest;
 import org.bouncycastle.crypto.macs.HMac;
 import org.bouncycastle.crypto.params.KeyParameter;
 
+import uniandes.gload.core.Task;
 
-public class ClienteNoSeguro {
 
-	private static Socket connection;
-	private static PrintWriter pw;
-	private static BufferedReader bf;
+public class ClienteNoSeguro extends Task{
+
+	private  Socket connection;
+	private  PrintWriter pw;
+	private  BufferedReader bf;
 	private static InputStreamReader in;
 	private static String ALGORITMOS = "ALGORITMOS";
 	private static String ASIMETRICO = "RSA";
 	private static String SIMETRICO = "AES";
 	private static String HMAC = "HMACSHA256";
-	private static KeyGenerator keyGen;
-	private static SecretKey sk;
+	private static int errores = 0;
+	private  KeyGenerator keyGen;
+	private  SecretKey sk;
 
-
-	public static void main(String[] args){
+	@Override
+	public void execute(){
 		// Ver protocolo para entender la transferencia de mensajes. 
 		alistarConexion();
 		pw.println("HOLA");
 		try{
 			bf.readLine();
 		} catch(Exception e) {
+			fail();
 			e.printStackTrace();
 		}
 		
@@ -51,6 +55,7 @@ public class ClienteNoSeguro {
 		}
 		// Verifica que el servidor haya respondido "OK" a los algoritmos que se le enviaron. 
 		if(mensaje == "ERROR"){
+			fail();
 			System.out.println("Se produjo un error después de mandar los algoritmos");
 		}
 		// Recibe el certificado digital
@@ -63,6 +68,7 @@ public class ClienteNoSeguro {
 			//el reto
 			pw.println("santiycan");
 		} catch(Exception e){
+			fail();
 			e.printStackTrace();
 		}
 		//Variable que tomará el valor del mensaje a mandar.
@@ -70,7 +76,6 @@ public class ClienteNoSeguro {
 		String respuesta = "";
 		try{
 			mensaje = bf.readLine();
-			System.out.println(mensaje);
 		} catch(Exception e) {
 			e.printStackTrace();
 		}
@@ -79,17 +84,11 @@ public class ClienteNoSeguro {
 			respuesta = "OK";
 		}
 		else{
+			fail();
 			respuesta = "ERROR";
 		}
-		System.out.println(respuesta);
-		pw.println("OK");
-		// Se abre un canal por donde el usuario puede ingresar su cédula y contraseña
-//		Scanner scanner = new Scanner(System.in);
-//		System.out.println("Ingrese su cédula: ");
-//		String cedula = scanner.nextLine();
-//		System.out.println("Ingrese su contraseña: ");
-//		String contrasena = scanner.nextLine();
-//		scanner.close();
+		pw.println(respuesta);
+		
 		//Se envían la cédula y la contraseña por el canal de comunicación
 		pw.println("1234");
 		pw.println("1234");
@@ -100,12 +99,12 @@ public class ClienteNoSeguro {
 			String hashValorLocal = valor.hashCode() + "";
 			//Se recibe el hash del valor que se mandó 
 			String hashValorExterno = bf.readLine();
-			System.out.println(hashValorExterno);
 			//Se verifica que los hashes sean iguales 
 			if(hashValorLocal.contentEquals(hashValorExterno)) {
 				valorCorrecto = "OK";
 			}
 			else {
+				fail();
 				valorCorrecto = "ERROR";
 			}
 		} catch (Exception e) {
@@ -118,10 +117,10 @@ public class ClienteNoSeguro {
 	/**
 	 * Método que se encarga de alistar la conexión que va a tener el cliente con el servidor
 	 */
-	private static void alistarConexion() {
+	private void alistarConexion() {
 		// Se crea la conexión y los elementos que servirán para la comunicación. 
 		try {
-			connection = new Socket("localhost", 6666);
+			connection = new Socket("157.253.201.161", 6666);
 			pw = new PrintWriter(connection.getOutputStream(), true);
 			in = new InputStreamReader(connection.getInputStream());
 			bf = new BufferedReader(in);
@@ -133,7 +132,7 @@ public class ClienteNoSeguro {
 	/**
 	 * Método que se encarga de generar una llave simétrica secreta
 	 */
-	private static SecretKey generateSimetricKey(){
+	private  SecretKey generateSimetricKey(){
 		try {
 			keyGen = KeyGenerator.getInstance(SIMETRICO);
 		} catch (NoSuchAlgorithmException e) {
@@ -147,5 +146,23 @@ public class ClienteNoSeguro {
 	public static byte[] toByteArray(String s) {
         return DatatypeConverter.parseBase64Binary(s);
     }
+
+	@Override
+	public void fail() {
+		errores++;
+		System.out.println(Task.MENSAJE_FAIL);		
+		
+	}
+
+	@Override
+	public void success() {
+		System.out.println(Task.OK_MESSAGE);
+	}
+	public static int errores(){
+		return errores;		
+	}
+
+	
+
 	
 }

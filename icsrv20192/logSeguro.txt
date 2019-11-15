@@ -1,10 +1,10 @@
-delegado 0: recibio-HOLA-continuando.
-delegado 0: recibio-ALGORITMOS:AES:RSA:HMACSHA256-continuando.
-delegado 0: envio certificado del servidor. continuando.
-delegado 0: recibio. continuando.
-delegado 0: recibio confirmacion del cliente:OK-continuado.
-delegado 0: recibio cc y clave - continuando
-delegado 0: envio valor 512232 . continuado.
-delegado 0: Terminando exitosamente.OK
- tiempo de transaccion: 0 milisegundos
+delegado 1: recibio-HOLA-continuando.
+delegado 1: recibio-ALGORITMOS:AES:RSA:HMACSHA256-continuando.
+delegado 1: envio certificado del servidor. continuando.
+delegado 1: recibio. continuando.
+delegado 1: recibio confirmacion del cliente:OK-continuado.
+delegado 1: recibio cc y clave - continuando
+delegado 1: envio valor 50256 . continuado.
+delegado 1: Terminando exitosamente.OK
+ tiempo de transaccion: 109 milisegundos
  cpu load: 0.0
