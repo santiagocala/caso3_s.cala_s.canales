@@ -21,11 +21,9 @@ public class testingg {
     private static InputStreamReader in;
     
 	public static void main(String args[]){
-//		String acifrar = "c4AG4k9/y0xBY1F6cdowfg==";
-//		generateSimetricKey();
-//		byte[] cifrado = cifrarSimetrico(KS, acifrar);
-		String adesc = "c4AG4k9/y0xBY1F6cdowfg==";
-		System.out.println(new String(descifrarSimetrico(adesc.getBytes(), KS)));
+		
+		Cliente c = new Cliente();
+		c.execute();
 		
 	}
 	private static String sumar0s(String m) {

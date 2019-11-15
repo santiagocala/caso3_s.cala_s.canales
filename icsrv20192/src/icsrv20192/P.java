@@ -13,6 +13,7 @@ import java.security.cert.X509Certificate;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+
 public class P {
 	private static ServerSocket ss;	
 	private static final String MAESTRO = "MAESTRO: ";
@@ -58,7 +59,7 @@ public class P {
 
 		//pool de threads
 		int numeroDeNucleos = Runtime.getRuntime().availableProcessors();
-		ExecutorService executer = Executors.newFixedThreadPool(numeroDeNucleos);
+		ExecutorService executer = Executors.newFixedThreadPool(1);
         
 		for (int i=0;true;i++) {
 			try { 
@@ -66,6 +67,7 @@ public class P {
 				System.out.println(MAESTRO + "Cliente " + i + " aceptado.");
 				//pool.execute(new D(sc,i));
 				D d = new D(sc,i);
+				//ss.setSoTimeout(10000000);//termina la transacción si el cliente se demora mucho
 				executer.execute(d);
 
 			} catch (IOException e) {

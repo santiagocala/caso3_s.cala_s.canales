@@ -1,5 +1,7 @@
 import com.sun.xml.internal.messaging.saaj.util.ByteInputStream;
 
+import uniandes.gload.core.Task;
+
 import org.bouncycastle.crypto.digests.SHA256Digest;
 import org.bouncycastle.crypto.macs.HMac;
 import org.bouncycastle.crypto.params.KeyParameter;
@@ -16,24 +18,27 @@ import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.util.*;
 
-public class Cliente{
+public class Cliente extends Task {
 
 	//algoritmos y padding utilizados
     private final static String padding = "AES/ECB/PKCS5Padding";
     private final static String RSA = "RSA";
     private final static String AES = "AES";    
     private final static String HMAC = "HMACSHA256";
-    private static Socket connection;
-    private static KeyGenerator keyGen;
-    private static SecretKey KS;
-    private static PrintWriter pw;
-    private static BufferedReader bf;
-    private static InputStreamReader in;
-    private static PublicKey PK;
+    private static int errores = 0;
+    //debería ser static? yo lo quité
+    private  Socket connection;
+    private  KeyGenerator keyGen;
+    private  SecretKey KS;
+    private  PrintWriter pw;
+    private  BufferedReader bf;
+    private  InputStreamReader in;
+    private  PublicKey PK;
 
 
 
     public Cliente(){
+    	    	
     }
 
 
@@ -133,7 +138,7 @@ public class Cliente{
     }
 
     //genera llaves con algoritmo AES
-    private static void generateSimetricKey(){
+    private  void generateSimetricKey(){
         try {
             keyGen = KeyGenerator.getInstance(AES);
             KS = keyGen.generateKey();
@@ -143,7 +148,7 @@ public class Cliente{
     }
     
     
-	public static byte[] hash(byte[] valor)
+	public byte[] hash(byte[] valor)
     {
         HMac hmac = new HMac(new SHA256Digest());
         hmac.init(new KeyParameter(KS.getEncoded()));
@@ -157,10 +162,8 @@ public class Cliente{
     
 
 
-
-    public static void main(String args[]){
-    	System.out.println(":)");
-
+	@Override
+    public void execute(){
         /*
          * ETAPA 1: 
          */
@@ -171,8 +174,10 @@ public class Cliente{
         //leer OK
         try {
             bf.readLine();
+            
 
         } catch (IOException e) {
+        	fail();
             e.printStackTrace();
         }
 
@@ -187,12 +192,9 @@ public class Cliente{
             //leer OK
             bf.readLine();
 
+
             //leer certificado digital
             String CD = bf.readLine();
-
-
-
-
 
             try {
 
@@ -205,11 +207,8 @@ public class Cliente{
                 X509Certificate certificate = (X509Certificate)f.generateCertificate(input);
                 PK = certificate.getPublicKey();
 
-
-
-
                 generateSimetricKey();
-
+                
 
                 //cifrar KS con la llave publica pk: cifrado asimï¿½trico
                 
@@ -232,16 +231,19 @@ public class Cliente{
                 
                 if(reto.equals("reto"))
                 	pw.println("OK");
-                else
+                else{
+                	fail();
                 	pw.println("ERROR");
-                	                	
+                }	                	
                 
                 //ingreso de datos
-                Scanner in = new Scanner(System.in);
-                System.out.println("Ingrese su cï¿½dula de ciudadanï¿½a: ");
-                String cc = in.nextLine();
-                System.out.println("Ingrese su contraseï¿½a: ");
-                String contrasena = in.nextLine();
+                //Scanner in = new Scanner(System.in);
+                //System.out.println("Ingrese su cï¿½dula de ciudadanï¿½a: ");
+                //String cc = in.nextLine();
+               // System.out.println("Ingrese su contraseï¿½a: ");
+                //String contrasena = in.nextLine();
+                String cc = "8888";
+                String contrasena = "1234";
                 
                 String CCcifrada = DatatypeConverter.printBase64Binary(cifrarSimetrico(KS, new String(sumar4s(cc))));
                 String contrasenaCifrada = DatatypeConverter.printBase64Binary(cifrarSimetrico(KS, new String(sumar4s(contrasena))));
@@ -264,14 +266,19 @@ public class Cliente{
 				String hmacGeneradoPorValorRecibido =DatatypeConverter.printBase64Binary(hash(valor));
                 	 
 				if(hmacGeneradoPorValorRecibido.equals(hmac))pw.println("OK");
-				else pw.println("ERROR");
+				else{
+					fail();
+					pw.println("ERROR");
+				}
 					
 
             } catch (CertificateException e) {
+            	fail();
                 e.printStackTrace();
             }
 
         } catch (IOException e) {
+        	fail();
             e.printStackTrace();
         }
 
@@ -297,7 +304,7 @@ public class Cliente{
 	}
 
 
-	private static void alistarConexion() {
+	private void alistarConexion() {
         try {
 
             connection = new Socket("localhost", 6666);
@@ -310,6 +317,24 @@ public class Cliente{
             e.printStackTrace();
         }
     }
+
+
+	@Override
+	public void fail() {
+		errores++;
+		System.out.println(Task.MENSAJE_FAIL);
+	}
+
+
+	@Override
+	public void success() {
+		// TODO Auto-generated method stub
+		System.out.println(Task.OK_MESSAGE);
+	}
+
+
+	
+
 
 
 }

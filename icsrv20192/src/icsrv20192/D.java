@@ -221,7 +221,7 @@ public class D extends Thread implements Runnable{
 					}
 					long tiempoTransaccion = finalTransaccion-comienzoTransaccion;
 					escribirMensaje(" tiempo de transaccion: " + tiempoTransaccion);
-					escribirMensaje(getSystemCpuLoad() + "");
+					escribirMensaje(" cpu load: " + getSystemCpuLoad());
 				}
 
 	        } catch (Exception e) {

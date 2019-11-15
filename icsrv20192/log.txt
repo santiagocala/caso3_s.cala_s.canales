@@ -1,0 +1,50 @@
+delegado 0: recibio-HOLA-continuando.
+delegado 0: recibio-ALGORITMOS:AES:RSA:HMACSHA256-continuando.
+delegado 0: envio certificado del servidor. continuando.
+delegado 0: recibio y creo llave simetrica. continuando.
+delegado 0: recibio confirmacion del cliente:OK-continuado.
+delegado 0: recibio cc y clave - continuando
+delegado 0: envio valor 57489800 cifrado con llave simetrica al cliente. continuado.
+delegado 0: Terminando exitosamente.OK
+ tiempo de transaccion: 169
+ cpu load: 0.0
+delegado 1: recibio-HOLA-continuando.
+delegado 1: recibio-ALGORITMOS:AES:RSA:HMACSHA256-continuando.
+delegado 1: envio certificado del servidor. continuando.
+delegado 1: recibio y creo llave simetrica. continuando.
+delegado 1: recibio confirmacion del cliente:OK-continuado.
+delegado 1: recibio cc y clave - continuando
+delegado 1: envio valor 98466900 cifrado con llave simetrica al cliente. continuado.
+delegado 1: Terminando exitosamente.OK
+ tiempo de transaccion: 3
+ cpu load: 0.0
+delegado 2: recibio-HOLA-continuando.
+delegado 2: recibio-ALGORITMOS:AES:RSA:HMACSHA256-continuando.
+delegado 2: envio certificado del servidor. continuando.
+delegado 2: recibio y creo llave simetrica. continuando.
+delegado 2: recibio confirmacion del cliente:OK-continuado.
+delegado 2: recibio cc y clave - continuando
+delegado 2: envio valor 45895400 cifrado con llave simetrica al cliente. continuado.
+delegado 2: Terminando exitosamente.OK
+ tiempo de transaccion: 2
+ cpu load: 1.8
+delegado 3: recibio-HOLA-continuando.
+delegado 3: recibio-ALGORITMOS:AES:RSA:HMACSHA256-continuando.
+delegado 3: envio certificado del servidor. continuando.
+delegado 3: recibio y creo llave simetrica. continuando.
+delegado 3: recibio confirmacion del cliente:OK-continuado.
+delegado 3: recibio cc y clave - continuando
+delegado 3: envio valor 14644300 cifrado con llave simetrica al cliente. continuado.
+delegado 3: Terminando exitosamente.OK
+ tiempo de transaccion: 3
+ cpu load: 0.0
+delegado 4: recibio-HOLA-continuando.
+delegado 4: recibio-ALGORITMOS:AES:RSA:HMACSHA256-continuando.
+delegado 4: envio certificado del servidor. continuando.
+delegado 4: recibio y creo llave simetrica. continuando.
+delegado 4: recibio confirmacion del cliente:OK-continuado.
+delegado 4: recibio cc y clave - continuando
+delegado 4: envio valor 39210900 cifrado con llave simetrica al cliente. continuado.
+delegado 4: Terminando exitosamente.OK
+ tiempo de transaccion: 3
+ cpu load: 1.6
