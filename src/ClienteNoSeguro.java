@@ -120,7 +120,7 @@ public class ClienteNoSeguro extends Task{
 	private void alistarConexion() {
 		// Se crea la conexión y los elementos que servirán para la comunicación. 
 		try {
-			connection = new Socket("157.253.201.161", 6666);
+			connection = new Socket("157.253.201.154", 4651);
 			pw = new PrintWriter(connection.getOutputStream(), true);
 			in = new InputStreamReader(connection.getInputStream());
 			bf = new BufferedReader(in);

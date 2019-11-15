@@ -296,7 +296,7 @@ public class Cliente extends Task {
 
     private static byte[] sumar4s(String rellenar) {
     	String newString = rellenar;
-		while(newString.length() % 4 != 0){
+		while(newString.length() %  16 != 0){
 			newString = "0" + newString;
 		}
     	
@@ -307,7 +307,7 @@ public class Cliente extends Task {
 	private void alistarConexion() {
         try {
 
-            connection = new Socket("localhost", 6666);
+            connection = new Socket("157.253.201.154", 4561);
             pw = new PrintWriter(connection.getOutputStream(), true);
             in = new InputStreamReader(connection.getInputStream());
             bf = new BufferedReader(in);
