@@ -70,17 +70,18 @@ public class ClienteNoSeguro {
 		String respuesta = "";
 		try{
 			mensaje = bf.readLine();
+			System.out.println(mensaje);
 		} catch(Exception e) {
 			e.printStackTrace();
 		}
 		// Verifica que el servidor haya respondido el mismo reto que enviaron. 
-//		if(mensaje.equals("santiycan")){
-//			respuesta = "OK";
-//		}
-//		else{
-//			respuesta = "ERROR";
-//		}
-//		System.out.println(respuesta);
+		if(mensaje.equals("santiycan")){
+			respuesta = "OK";
+		}
+		else{
+			respuesta = "ERROR";
+		}
+		System.out.println(respuesta);
 		pw.println("OK");
 		// Se abre un canal por donde el usuario puede ingresar su cédula y contraseña
 //		Scanner scanner = new Scanner(System.in);
@@ -97,7 +98,6 @@ public class ClienteNoSeguro {
 			//Se recibe el valor y con ese valor se calcula el hash
 			String valor = bf.readLine();
 			String hashValorLocal = valor.hashCode() + "";
-			System.out.println(valor);
 			//Se recibe el hash del valor que se mandó 
 			String hashValorExterno = bf.readLine();
 			System.out.println(hashValorExterno);

@@ -134,7 +134,7 @@ public class DInseguro extends Thread implements Runnable {
             ac.println(OK);
 
             /***** Fase 3:  *****/
-            String testCert = new String (mybyte); //aca hubo cambios
+            String testCert = toHexString(mybyte); //aca hubo cambios
             System.out.println(testCert);
             ac.println(testCert);
             cadenas[2] = dlg + "envio certificado del servidor. continuando.";
@@ -151,7 +151,7 @@ public class DInseguro extends Thread implements Runnable {
             cadenas[4]="";
             linea = dc.readLine();
             System.out.println(dlg + "Recibio reto del cliente:-" + linea + "-");
-            ac.println("reto");//aca hubo cambios
+            ac.println(linea);//aca hubo cambios
             System.out.println(dlg + "envio reto . continuado.");
 
             linea = dc.readLine();
