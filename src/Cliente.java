@@ -42,13 +42,13 @@ public class Cliente extends Task {
     }
 
 
-    private static byte[] cifrarSimetrico(SecretKey ks, String m){
+    private static byte[] cifrarSimetrico(SecretKey ks, byte[] m){
         try {
 
             Cipher cifrador = Cipher.getInstance(padding);
             cifrador.init(Cipher.ENCRYPT_MODE,ks);
 
-            return cifrador.doFinal(m.getBytes());
+            return cifrador.doFinal(m);
 
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();return null;
@@ -93,12 +93,12 @@ public class Cliente extends Task {
         System.out.println(s);
     }
 
-    public static byte[] cifrarAsimetrico(Key pk, String algoritmo, String m){
+    public static byte[] cifrarAsimetrico(Key pk, String algoritmo, byte[] m){
         try {
             Cipher cifrador = Cipher.getInstance(algoritmo);
             cifrador.init(Cipher.ENCRYPT_MODE, pk);
 
-            return cifrador.doFinal(m.getBytes());
+            return cifrador.doFinal(m);
 
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();return null;
@@ -212,8 +212,8 @@ public class Cliente extends Task {
 
                 //cifrar KS con la llave publica pk: cifrado asim�trico
                 
-                String ksCifrada = new String(KS.getEncoded());
-                byte[] bytesksCifrada = cifrarAsimetrico(PK,RSA,ksCifrada);
+//                String ksCifrada = new String(KS.getEncoded());
+                byte[] bytesksCifrada = cifrarAsimetrico(PK,RSA,KS.getEncoded());
 
 
                 
@@ -245,8 +245,8 @@ public class Cliente extends Task {
                 String cc = "8888";
                 String contrasena = "1234";
                 
-                String CCcifrada = DatatypeConverter.printBase64Binary(cifrarSimetrico(KS, new String(sumar4s(cc))));
-                String contrasenaCifrada = DatatypeConverter.printBase64Binary(cifrarSimetrico(KS, new String(sumar4s(contrasena))));
+                String CCcifrada = DatatypeConverter.printBase64Binary(cifrarSimetrico(KS, sumar4s(cc)));
+                String contrasenaCifrada = DatatypeConverter.printBase64Binary(cifrarSimetrico(KS, sumar4s(contrasena)));
                 
                 //env�o de datos
                 pw.println(CCcifrada);
