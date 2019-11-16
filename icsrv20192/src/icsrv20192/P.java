@@ -19,7 +19,7 @@ public class P {
 	private static final String MAESTRO = "MAESTRO: ";
 	private static X509Certificate certSer; /* acceso default */
 	private static KeyPair keyPairServidor; /* acceso default */
-	private static final int THREADS = 2;
+	private static final int THREADS = 8;
 
 	/**
 	 * @param args
@@ -87,7 +87,7 @@ public class P {
 			try { 
 				Socket sc = ss.accept();
 				System.out.println(MAESTRO + "Cliente " + i + " aceptado.");
-				//pool.execute(new D(sc,i));
+
 				if(decision.equals("1")){
 					D d = new D(sc,i);
 					executer.execute(d);

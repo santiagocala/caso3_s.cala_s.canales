@@ -12,8 +12,8 @@ public class Generator {
 
     public Generator(String decision){
         Task work = createTask(decision);
-        int numberOfTasks = 400;
-        int gapBetweenTasks = 20;
+        int numberOfTasks = 10;
+        int gapBetweenTasks = 80;
         generator = new LoadGenerator("Client - Server Load Tests ", numberOfTasks,work,gapBetweenTasks);
         generator.generate();
     }
@@ -35,6 +35,7 @@ public class Generator {
     	System.out.println("2.Cliente Inseguro");
     	Scanner sc = new Scanner(System.in);
     	String decision = sc.nextLine();
-        Generator gen = new Generator(decision);
+        @SuppressWarnings("unused")
+		Generator gen = new Generator(decision);
     }
 }
