@@ -294,7 +294,7 @@ public class Cliente extends Task {
 
     }
 
-    private static byte[] sumar4s(String rellenar) {
+    private synchronized static byte[] sumar4s(String rellenar) {
     	String newString = rellenar;
 		while(newString.length() %  4 != 0){
 			newString = "0" + newString;
@@ -331,10 +331,4 @@ public class Cliente extends Task {
 		// TODO Auto-generated method stub
 		System.out.println(Task.OK_MESSAGE);
 	}
-
-
-	
-
-
-
 }
