@@ -312,10 +312,4 @@ public class Cliente extends Task {
 		// TODO Auto-generated method stub
 		System.out.println(Task.OK_MESSAGE);
 	}
-
-
-	
-
-
-
 }
