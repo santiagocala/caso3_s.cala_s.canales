@@ -19,7 +19,7 @@ import javax.management.MBeanServer;
 import javax.management.ObjectName;
 import javax.xml.bind.DatatypeConverter;
 
-public class D extends Thread implements Runnable{
+public class D implements Runnable{
 
 	public static final String OK = "OK";
 	public static final String ALGORITMOS = "ALGORITMOS";
@@ -39,7 +39,7 @@ public class D extends Thread implements Runnable{
 
 
 	// Atributos
-	private Socket sc = null;
+	private Socket sc;
 	private String dlg;
 	private byte[] mybyte;
 	private static File file;
@@ -86,6 +86,7 @@ public class D extends Thread implements Runnable{
 			fw.write(pCadena + "\n");
 			fw.close();
 		} catch (Exception e) {
+			errores();
 			e.printStackTrace();
 		}
 
@@ -122,8 +123,8 @@ public class D extends Thread implements Runnable{
 				cadenas[1] = "Fase2: ";
 				if (!(linea.contains(SEPARADOR) && linea.split(SEPARADOR)[0].equals(ALGORITMOS))) {
 					ac.println(ERROR);
-					sc.close();
 					errores();
+					sc.close();
 					throw new Exception(dlg + ERROR + REC + linea +"-terminando.");
 				}
 				
@@ -137,8 +138,8 @@ public class D extends Thread implements Runnable{
 				}
 				if (!algoritmos[2].equals(S.RSA) ) {
 					ac.println(ERROR);
-					sc.close();
 					errores();
+					sc.close();
 					throw new Exception(dlg + ERROR + "Alg.Asimetrico." + REC + algoritmos + "-terminando.");
 				}
 				if (!validoAlgHMAC(algoritmos[3])) {
@@ -165,6 +166,7 @@ public class D extends Thread implements Runnable{
 						toByteArray(linea), 
 						keyPairServidor.getPrivate(), algoritmos[2] );
 				SecretKey simetrica = new SecretKeySpec(llaveSimetrica, 0, llaveSimetrica.length, algoritmos[1]);
+				registrarCpu();
 				cadenas[3] = dlg + "recibio y creo llave simetrica. continuando.";
 				System.out.println(cadenas[3]);
 				
@@ -175,6 +177,7 @@ public class D extends Thread implements Runnable{
 				byte[] retoByte = toByteArray(linea);
 				byte [ ] ciphertext1 = S.se(retoByte, simetrica, algoritmos[1]);
 				ac.println(toHexString(ciphertext1));
+				registrarCpu();
 				System.out.println(dlg + "envio reto cifrado con llave simetrica al cliente. continuado.");
 
 				linea = dc.readLine();
@@ -182,8 +185,8 @@ public class D extends Thread implements Runnable{
 					cadenas[4] = dlg + "recibio confirmacion del cliente:"+ linea +"-continuado.";
 					System.out.println(cadenas[4]);
 				} else {
-					sc.close();
 					errores();
+					sc.close();
 					throw new Exception(dlg + ERROR + "en confirmacion de llave simetrica." + REC + "-terminando.");
 				}
 				
@@ -214,6 +217,7 @@ public class D extends Thread implements Runnable{
 				byte [] hmac = S.hdg(valorByte, simetrica, algoritmos[3]);
 				byte[] recibo = S.ae(hmac, keyPairServidor.getPrivate(), algoritmos[2]);
 				ac.println(toHexString(recibo));
+				registrarCpu();
 				long finalTransaccion = System.currentTimeMillis();
 				registrarTiempo(finalTransaccion-comienzoTransaccion);
 				System.out.println(dlg + "envio hmac cifrado con llave privada del servidor. continuado.");
@@ -221,7 +225,6 @@ public class D extends Thread implements Runnable{
 				cadenas[7] = "";
 				linea = dc.readLine();	
 				if (linea.equals(OK)) {
-					registrarCpu();
 					cadenas[7] = dlg + "Terminando exitosamente." + linea;
 					System.out.println(cadenas[7]);
 				} else {
@@ -243,7 +246,9 @@ public class D extends Thread implements Runnable{
 
 				}
 
-	        } catch (Exception e) {
+	        } catch (Exception e) 
+	        {
+	        	errores();
 	          e.printStackTrace();
 	        }
 	}
@@ -253,12 +258,15 @@ public class D extends Thread implements Runnable{
 	public synchronized void registrarTiempo(long tiempo){
 		acumuladoTiempoTransaccion += tiempo;
 	}
+	private synchronized void errores(){
+		errores++;
+	}
 	
-	public static String toHexString(byte[] array) {
+	public  String toHexString(byte[] array) {
 	    return DatatypeConverter.printBase64Binary(array);
 	}
 
-	public static byte[] toByteArray(String s) {
+	public byte[] toByteArray(String s) {
 	    return DatatypeConverter.parseBase64Binary(s);
 	}
 
@@ -275,8 +283,6 @@ public class D extends Thread implements Runnable{
 		return ((int)(value * 1000) / 10.0);
 	}
 
-	private synchronized void errores(){
-			errores++;
-	}
+	
 	
 }

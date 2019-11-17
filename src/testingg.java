@@ -22,10 +22,9 @@ public class testingg {
     
 	public static void main(String args[]){
 		
-//		Cliente c = new Cliente();
-//		c.execute();
-		String s = "hola";
-		System.out.println(s.hashCode());
+		Cliente c = new Cliente();
+		c.execute();
+		
 		
 	}
 	private static String sumar0s(String m) {

@@ -14,7 +14,7 @@ import java.security.KeyPair;
 import java.security.cert.X509Certificate;
 import java.util.Random;
 
-public class DInseguro extends Thread implements Runnable {
+public class DInseguro implements Runnable {
     public static final String OK = "OK";
     public static final String ALGORITMOS = "ALGORITMOS";
     public static final String CERTSRV = "CERTSRV";
@@ -25,7 +25,6 @@ public class DInseguro extends Thread implements Runnable {
     public static final String ERROR = "ERROR";
     public static final String REC = "recibio-";
     public static final int numCadenas = 8;
-    private static int errores = 0;
     private static int exitosos = 0;
 
     // Atributos
@@ -35,6 +34,12 @@ public class DInseguro extends Thread implements Runnable {
     private static File file;
     private static X509Certificate certSer;
     private static KeyPair keyPairServidor;
+    
+    private final static int TOTAL_TRANS = 400;
+   
+    private static int errores = 0;
+	private static double acumuladoCPU = 0;
+	private static double acumuladoTiempoTransaccion = 0;
 
     public static void init(X509Certificate pCertSer, KeyPair pKeyPairServidor, File pFile) {
         certSer = pCertSer;
@@ -98,7 +103,7 @@ public class DInseguro extends Thread implements Runnable {
             if (!linea.equals(HOLA)) {
                 ac.println(ERROR);
                 sc.close();
-                errores++;
+                errores();
                 throw new Exception(dlg + ERROR + REC + linea +"-terminando.");
             } else {
                 ac.println(OK);
@@ -112,8 +117,8 @@ public class DInseguro extends Thread implements Runnable {
             cadenas[1] = "Fase2: ";
             if (!(linea.contains(SEPARADOR) && linea.split(SEPARADOR)[0].equals(ALGORITMOS))) {
                 ac.println(ERROR);
+                errores();
                 sc.close();
-                errores++;
                 throw new Exception(dlg + ERROR + REC + linea +"-terminando.");
             }
 
@@ -121,16 +126,19 @@ public class DInseguro extends Thread implements Runnable {
             if (!algoritmos[1].equals(S.DES) && !algoritmos[1].equals(S.AES) &&
                     !algoritmos[1].equals(S.BLOWFISH) && !algoritmos[1].equals(S.RC4)){
                 ac.println(ERROR);
+                errores();
                 sc.close();
                 throw new Exception(dlg + ERROR + "Alg.Simetrico" + REC + algoritmos + "-terminando.");
             }
             if (!algoritmos[2].equals(S.RSA) ) {
                 ac.println(ERROR);
+                errores();
                 sc.close();
                 throw new Exception(dlg + ERROR + "Alg.Asimetrico." + REC + algoritmos + "-terminando.");
             }
             if (!validoAlgHMAC(algoritmos[3])) {
                 ac.println(ERROR);
+                errores();
                 sc.close();
                 throw new Exception(dlg + ERROR + "AlgHash." + REC + algoritmos + "-terminando.");
             }
@@ -148,6 +156,7 @@ public class DInseguro extends Thread implements Runnable {
             /***** Fase 4: *****/
             cadenas[3] = "";
             linea = dc.readLine();
+            registrarCpu();
             long comienzoTransaccion = System.currentTimeMillis();
             cadenas[3] = dlg + "recibio. continuando.";
             System.out.println(cadenas[3]);
@@ -156,7 +165,8 @@ public class DInseguro extends Thread implements Runnable {
             cadenas[4]="";
             linea = dc.readLine();
             System.out.println(dlg + "Recibio reto del cliente:-" + linea + "-");
-            ac.println(linea);//aca hubo cambios
+            ac.println(linea);
+            registrarCpu();
             System.out.println(dlg + "envio reto . continuado.");
 
             linea = dc.readLine();
@@ -164,7 +174,7 @@ public class DInseguro extends Thread implements Runnable {
                 cadenas[4] = dlg + "recibio confirmacion del cliente:"+ linea +"-continuado.";
                 System.out.println(cadenas[4]);
             } else {
-                errores++;
+            	errores();
                 sc.close();
                 throw new Exception(dlg + ERROR + " el cliente envió ERROR y no OK. " + REC + "-terminando.");
             }
@@ -187,17 +197,18 @@ public class DInseguro extends Thread implements Runnable {
 
             //byte [] hmac = S.hdg(strvalor.getBytes(), simetrica, algoritmos[3]);//aca hubo cambios
             ac.println(strvalor.hashCode());//aca tambien
+            registrarCpu();
             long finalTransaccion = System.currentTimeMillis();
+            registrarTiempo(finalTransaccion-comienzoTransaccion);
             System.out.println(dlg + "envio hmac cifrado. continuado.");
 
             cadenas[7] = "";
             linea = dc.readLine();
             if (linea.equals(OK)) {
-                exitosos++;
                 cadenas[7] = dlg + "Terminando exitosamente." + linea;
                 System.out.println(cadenas[7]);
             } else {
-                errores++;
+            	errores();
                 cadenas[7] = dlg + "Terminando con error" + linea;
                 System.out.println(cadenas[7]);
             }
@@ -208,21 +219,32 @@ public class DInseguro extends Thread implements Runnable {
                     escribirMensaje(cadenas[i]);
                 }
                 long tiempoTransaccion = finalTransaccion-comienzoTransaccion;
-                escribirMensaje(" tiempo de transaccion: " + tiempoTransaccion + " milisegundos");
-                escribirMensaje(" cpu load: " + getSystemCpuLoad());
-                escribirMensaje("porcentaje de error: " + errores/(errores + exitosos) );
+                escribirMensaje(" tiempo de transaccion promedio: " + acumuladoTiempoTransaccion/TOTAL_TRANS + " milisegundos ");
+				escribirMensaje("errores totales : " + errores );
+				escribirMensaje(" cpu load acumulado: " + acumuladoCPU/TOTAL_TRANS);
             }
 
         } catch (Exception e) {
+        	errores();
             e.printStackTrace();
         }
     }
+    
+    public synchronized void registrarCpu() throws Exception {
+		acumuladoCPU += getSystemCpuLoad();
+	}
+	public synchronized void registrarTiempo(long tiempo){
+		acumuladoTiempoTransaccion += tiempo;
+	}
+	private synchronized void errores(){
+		errores++;
+	}
 
-    public static String toHexString(byte[] array) {
+    public String toHexString(byte[] array) {
         return DatatypeConverter.printBase64Binary(array);
     }
 
-    public static byte[] toByteArray(String s) {
+    public byte[] toByteArray(String s) {
         return DatatypeConverter.parseBase64Binary(s);
     }
 

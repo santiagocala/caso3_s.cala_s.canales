@@ -1,3 +1,4 @@
+import com.sun.swing.internal.plaf.synth.resources.synth;
 import com.sun.xml.internal.messaging.saaj.util.ByteInputStream;
 
 import uniandes.gload.core.Task;
@@ -26,14 +27,8 @@ public class Cliente extends Task {
     private final static String AES = "AES";    
     private final static String HMAC = "HMACSHA256";
     private static int errores = 0;
-    //deber�a ser static? yo lo quit�
-    private  Socket connection;
-    private  KeyGenerator keyGen;
-    private  SecretKey KS;
-    private  PrintWriter pw;
-    private  BufferedReader bf;
-    private  InputStreamReader in;
-    private  PublicKey PK;
+    
+    
 
 
 
@@ -42,7 +37,7 @@ public class Cliente extends Task {
     }
 
 
-    private static byte[] cifrarSimetrico(SecretKey ks, byte[] m){
+    private byte[] cifrarSimetrico(SecretKey ks, byte[] m){
         try {
 
             Cipher cifrador = Cipher.getInstance(padding);
@@ -63,7 +58,7 @@ public class Cliente extends Task {
         }
     }
 
-    private static byte[] descifrarSimetrico(byte[] texto, SecretKey ks){
+    private byte[] descifrarSimetrico(byte[] texto, SecretKey ks){
     	byte[] textoClaro;
         try {
             Cipher descifrador = Cipher.getInstance(padding);
@@ -85,15 +80,15 @@ public class Cliente extends Task {
         return textoClaro;
     }
 
-    private static void imprimirBytes(byte[] bytes){
-        String s = "";
-        for(int i = 0; i < bytes.length; i++){
-            s += bytes[i];
-        }
-        System.out.println(s);
-    }
+//    private static void imprimirBytes(byte[] bytes){
+//        String s = "";
+//        for(int i = 0; i < bytes.length; i++){
+//            s += bytes[i];
+//        }
+//        System.out.println(s);
+//    }
 
-    public static byte[] cifrarAsimetrico(Key pk, String algoritmo, byte[] m){
+    public byte[] cifrarAsimetrico(Key pk, String algoritmo, byte[] m){
         try {
             Cipher cifrador = Cipher.getInstance(algoritmo);
             cifrador.init(Cipher.ENCRYPT_MODE, pk);
@@ -112,7 +107,7 @@ public class Cliente extends Task {
             e.printStackTrace();return null;
         }
     }
-    public static byte[] descifrarAsimetrico(Key pk, String algoritmo, byte[] texto){
+    public byte[] descifrarAsimetrico(Key pk, String algoritmo, byte[] texto){
     	byte[] textoClaro;
     	try {
 			Cipher descifrador = Cipher.getInstance(algoritmo);
@@ -138,17 +133,9 @@ public class Cliente extends Task {
     }
 
     //genera llaves con algoritmo AES
-    private  void generateSimetricKey(){
-        try {
-            keyGen = KeyGenerator.getInstance(AES);
-            KS = keyGen.generateKey();
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-        }
-    }
+   
     
-    
-	public byte[] hash(byte[] valor)
+	public byte[] hash(byte[] valor,SecretKey KS)
     {
         HMac hmac = new HMac(new SHA256Digest());
         hmac.init(new KeyParameter(KS.getEncoded()));
@@ -164,38 +151,31 @@ public class Cliente extends Task {
 
 	@Override
     public void execute(){
-        /*
-         * ETAPA 1: 
-         */
-    	//establecer conexi�n
-        alistarConexion();
-        pw.println("HOLA");
+		
+		Socket connection;
+	    KeyGenerator keyGen;
+	    SecretKey KS;
+	    PrintWriter pw;
+	    BufferedReader bf;
+	    InputStreamReader in;
+	    PublicKey PK;
         
-        //leer OK
-        try {
-            bf.readLine();
+	    try {
+
+            connection = new Socket("localhost", 6789);
+            pw = new PrintWriter(connection.getOutputStream(), true);
+            in = new InputStreamReader(connection.getInputStream());
+            bf = new BufferedReader(in);
             
+            pw.println("HOLA");
+            bf.readLine();//OK
 
-        } catch (IOException e) {
-        	fail();
-            e.printStackTrace();
-        }
-
-        /*
-         * ETAPA 2
-         */
-        //mandar algoritmos en orden- simétrico, asimétrico y hmac
-        String algoritmos = "ALGORITMOS:AES:RSA:HMACSHA256";
-        pw.println(algoritmos);
-        try {
-
-            //leer OK
-            bf.readLine();
-
-
-            //leer certificado digital
+            String algoritmos = "ALGORITMOS:AES:RSA:HMACSHA256";
+            pw.println(algoritmos);
+            bf.readLine();//OK
+            
             String CD = bf.readLine();
-
+            
             try {
 
                 //establecer estándar
@@ -207,69 +187,66 @@ public class Cliente extends Task {
                 X509Certificate certificate = (X509Certificate)f.generateCertificate(input);
                 PK = certificate.getPublicKey();
 
-                generateSimetricKey();
-                
-
-                //cifrar KS con la llave publica pk: cifrado asim�trico
-                
-//                String ksCifrada = new String(KS.getEncoded());
-                byte[] bytesksCifrada = cifrarAsimetrico(PK,RSA,KS.getEncoded());
-
-
-                
-
-                //ETAPA 3
-                //se envia la llave de sesión cifrada asimétricamente
-                pw.println(DatatypeConverter.printBase64Binary(bytesksCifrada));
-
-                //verificar que funciona el canal
-                pw.println("reto");
-                String prueba = bf.readLine();
-                
-                String reto = DatatypeConverter.printBase64Binary(descifrarSimetrico(sumar4s(prueba),KS));
-                
-                
-                if(reto.equals("reto"))
-                	pw.println("OK");
-                else{
+                try {
+                    keyGen = KeyGenerator.getInstance(AES);
+                    KS = keyGen.generateKey();
+                    byte[] bytesksCifrada = cifrarAsimetrico(PK,RSA,KS.getEncoded());
+                    pw.println(DatatypeConverter.printBase64Binary(bytesksCifrada));
+                    pw.println("reto");
+                    String prueba = bf.readLine();
+                    String reto = DatatypeConverter.printBase64Binary(descifrarSimetrico(sumar4s(prueba),KS));
+                    if(reto.equals("reto"))
+                    	pw.println("OK");
+                    else{
+                    	fail();
+                    	pw.println("ERROR");
+                    	
+                    }
+                    String cc = "8888";
+                    String contrasena = "1234";
+                    
+                    String CCcifrada = DatatypeConverter.printBase64Binary(cifrarSimetrico(KS, sumar4s(cc)));
+                    String contrasenaCifrada = DatatypeConverter.printBase64Binary(cifrarSimetrico(KS, sumar4s(contrasena)));
+                    
+                    //env�o de datos
+                    pw.println(CCcifrada);
+                    pw.println(contrasenaCifrada);
+                    
+                    
+                    //ETAPA 4
+                    //recibir valor y hmac para comparar 
+                    String valorCifradoKS = bf.readLine();
+                    String hmacCifradoPK = bf.readLine();
+                    
+                    
+                    byte[] valor = descifrarSimetrico(sumar4s(valorCifradoKS),KS);
+                    String hmac = DatatypeConverter.printBase64Binary(descifrarAsimetrico(PK, RSA, sumar4s(hmacCifradoPK)));
+                    
+                   	
+    				String hmacGeneradoPorValorRecibido =DatatypeConverter.printBase64Binary(hash(valor,KS));
+                    	 
+    				if(hmacGeneradoPorValorRecibido.equals(hmac))pw.println("OK");
+    				else{
+    					fail();
+    					pw.println("ERROR");
+    					return;
+    				}
+                } catch (NoSuchAlgorithmException e) {
                 	fail();
-                	pw.println("ERROR");
-                }	                	
+                    e.printStackTrace();
+                    
+                }
                 
-                //ingreso de datos
-                //Scanner in = new Scanner(System.in);
-                //System.out.println("Ingrese su c�dula de ciudadan�a: ");
-                //String cc = in.nextLine();
-               // System.out.println("Ingrese su contrase�a: ");
-                //String contrasena = in.nextLine();
-                String cc = "8888";
-                String contrasena = "1234";
-                
-                String CCcifrada = DatatypeConverter.printBase64Binary(cifrarSimetrico(KS, sumar4s(cc)));
-                String contrasenaCifrada = DatatypeConverter.printBase64Binary(cifrarSimetrico(KS, sumar4s(contrasena)));
-                
-                //env�o de datos
-                pw.println(CCcifrada);
-                pw.println(contrasenaCifrada);
+
                 
                 
-                //ETAPA 4
-                //recibir valor y hmac para comparar 
-                String valorCifradoKS = bf.readLine();
-                String hmacCifradoPK = bf.readLine();
                 
                 
-                byte[] valor = descifrarSimetrico(sumar4s(valorCifradoKS),KS);
-                String hmac = DatatypeConverter.printBase64Binary(descifrarAsimetrico(PK, RSA, sumar4s(hmacCifradoPK)));
                 
-               	
-				String hmacGeneradoPorValorRecibido =DatatypeConverter.printBase64Binary(hash(valor));
-                	 
-				if(hmacGeneradoPorValorRecibido.equals(hmac))pw.println("OK");
-				else{
-					fail();
-					pw.println("ERROR");
-				}
+               	                	
+                
+                
+               
 					
 
             } catch (CertificateException e) {
@@ -278,23 +255,26 @@ public class Cliente extends Task {
             }
 
         } catch (IOException e) {
-        	fail();
             e.printStackTrace();
         }
+        
+        
+        
+       
+        
 
-        //Cerrar
-        pw.close();
-        try {
-            bf.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        /*
+         * ETAPA 2
+         */
+        //mandar algoritmos en orden- simétrico, asimétrico y hmac
+        
+        
 
 
 
     }
 
-    private static byte[] sumar4s(String rellenar) {
+    private byte[] sumar4s(String rellenar) {
     	String newString = rellenar;
 		while(newString.length() %  4 != 0){
 			newString = "0" + newString;
@@ -302,21 +282,22 @@ public class Cliente extends Task {
     	
 		return DatatypeConverter.parseBase64Binary(newString);
 	}
+//    private synchronized void sendMessage(String m){
+//    	pw.print(m);
+//    }
+//    private synchronized String recieveMessage(){
+//    	try {
+//			String m = bf.readLine();
+//			return m;
+//		} catch (IOException e) {
+//			fail();
+//			e.printStackTrace();
+//			return "ERROR--";
+//		}
+//    }
 
 
-	private void alistarConexion() {
-        try {
-
-            connection = new Socket("localhost", 6789);
-            pw = new PrintWriter(connection.getOutputStream(), true);
-            in = new InputStreamReader(connection.getInputStream());
-            bf = new BufferedReader(in);
-
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
+	
 
 
 	@Override

@@ -19,7 +19,7 @@ public class P {
 	private static final String MAESTRO = "MAESTRO: ";
 	private static X509Certificate certSer; /* acceso default */
 	private static KeyPair keyPairServidor; /* acceso default */
-	private static final int THREADS = 8;
+	private static final int THREADS = 1;
 
 	/**
 	 * @param args
@@ -31,8 +31,8 @@ public class P {
 		InputStreamReader isr = new InputStreamReader(System.in);
 		BufferedReader br = new BufferedReader(isr);
 
-		System.out.println(MAESTRO + "Establezca puerto de conexion:");
-		int ip = Integer.parseInt(br.readLine());
+		int ip = 6789;
+		System.out.println(MAESTRO + "Puerto de conexion: " + ip);
 
 		System.out.println("1. Servidor Seguro");
 		System.out.println("2. Servidor Inseguro");
@@ -77,7 +77,7 @@ public class P {
         
 		// Crea el socket que escucha en el puerto seleccionado.
 		ss = new ServerSocket(ip);
-		System.out.println(MAESTRO + "Socket creado.");
+		System.out.println(MAESTRO + "Socket creado");
 
 		//pool de threads
 		//int numeroDeNucleos = Runtime.getRuntime().availableProcessors();
@@ -86,7 +86,7 @@ public class P {
 		for (int i=0;true;i++) {
 			try { 
 				Socket sc = ss.accept();
-				System.out.println(MAESTRO + "Cliente " + i + " aceptado.");
+				System.out.println(MAESTRO + "Cliente " + i + 1 + " aceptado.");
 
 				if(decision.equals("1")){
 					D d = new D(sc,i);
@@ -97,7 +97,7 @@ public class P {
 					executer.execute(di);
 				}
 				else{
-					System.out.println("no sea terco, es 1 o 2");
+					System.out.println("solamente se acepta 1 o 2 :)");
 					return;
 				}
 

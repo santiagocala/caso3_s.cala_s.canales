@@ -120,7 +120,7 @@ public class ClienteNoSeguro extends Task{
 	private void alistarConexion() {
 		// Se crea la conexión y los elementos que servirán para la comunicación. 
 		try {
-			connection = new Socket("157.253.201.154", 6789);
+			connection = new Socket("localhost", 6789);
 			pw = new PrintWriter(connection.getOutputStream(), true);
 			in = new InputStreamReader(connection.getInputStream());
 			bf = new BufferedReader(in);
@@ -140,10 +140,10 @@ public class ClienteNoSeguro extends Task{
 		}
 		return keyGen.generateKey();
 	}
-	public static String toHexString(byte[] array) {
+	public String toHexString(byte[] array) {
         return DatatypeConverter.printBase64Binary(array);
     }
-	public static byte[] toByteArray(String s) {
+	public byte[] toByteArray(String s) {
         return DatatypeConverter.parseBase64Binary(s);
     }
 
@@ -158,7 +158,7 @@ public class ClienteNoSeguro extends Task{
 	public void success() {
 		System.out.println(Task.OK_MESSAGE);
 	}
-	public static int errores(){
+	public int errores(){
 		return errores;		
 	}
 

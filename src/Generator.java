@@ -12,10 +12,11 @@ public class Generator {
 
     public Generator(String decision){
         Task work = createTask(decision);
-        int numberOfTasks = 10;
-        int gapBetweenTasks = 80;
+        int numberOfTasks = 400;
+        int gapBetweenTasks = 20;
         generator = new LoadGenerator("Client - Server Load Tests ", numberOfTasks,work,gapBetweenTasks);
         generator.generate();
+        
     }
 
     private Task createTask(String decision){
@@ -33,7 +34,8 @@ public class Generator {
     public static void main (String args[]){
     	System.out.println("1.Cliente Seguro");
     	System.out.println("2.Cliente Inseguro");
-    	Scanner sc = new Scanner(System.in);
+    	@SuppressWarnings("resource")
+		Scanner sc = new Scanner(System.in);
     	String decision = sc.nextLine();
         @SuppressWarnings("unused")
 		Generator gen = new Generator(decision);
