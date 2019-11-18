@@ -19,7 +19,7 @@ public class P {
 	private static final String MAESTRO = "MAESTRO: ";
 	private static X509Certificate certSer; /* acceso default */
 	private static KeyPair keyPairServidor; /* acceso default */
-	private static final int THREADS = 2;
+	private static final int THREADS = 1;
 
 	/**
 	 * @param args
@@ -80,7 +80,7 @@ public class P {
 			FileWriter fw = new FileWriter(fileInseguro);
 			fw.close();
 
-			DInseguro.init(certSer, keyPairServidor, fileInseguro);
+			DInseguro.init(certSer, keyPairServidor, fileInseguro,resultados);
 		}
 
         

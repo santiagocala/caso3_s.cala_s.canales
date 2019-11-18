@@ -32,9 +32,6 @@ public class D implements Runnable{
 	public static final String REC = "recibio-";
 	public static final int numCadenas = 8;
 	private static int errores = 0;
-	private final static int TOTAL_TRANS = 200;
-	private static double acumuladoCPU = 0;
-	private static double acumuladoTiempoTransaccion = 0;
 
 
 

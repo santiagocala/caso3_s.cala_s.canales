@@ -22,7 +22,7 @@ public class testingg {
     
 	public static void main(String args[]){
 		
-		Cliente c = new Cliente();
+		ClienteNoSeguro c = new ClienteNoSeguro();
 		c.execute();
 		
 		

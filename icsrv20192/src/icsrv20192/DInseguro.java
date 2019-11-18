@@ -1,7 +1,5 @@
 package icsrv20192;
 
-import javax.crypto.SecretKey;
-import javax.crypto.spec.SecretKeySpec;
 import javax.management.Attribute;
 import javax.management.AttributeList;
 import javax.management.MBeanServer;
@@ -25,7 +23,6 @@ public class DInseguro implements Runnable {
     public static final String ERROR = "ERROR";
     public static final String REC = "recibio-";
     public static final int numCadenas = 8;
-    private static int exitosos = 0;
 
     // Atributos
     private Socket sc = null;
@@ -33,18 +30,15 @@ public class DInseguro implements Runnable {
     private byte[] mybyte;
     private static File file;
     private static X509Certificate certSer;
-    private static KeyPair keyPairServidor;
+    private static File resultados;
     
-    private final static int TOTAL_TRANS = 400;
    
     private static int errores = 0;
-	private static double acumuladoCPU = 0;
-	private static double acumuladoTiempoTransaccion = 0;
 
-    public static void init(X509Certificate pCertSer, KeyPair pKeyPairServidor, File pFile) {
+    public static void init(X509Certificate pCertSer, KeyPair pKeyPairServidor, File pFile,File resultadosP) {
         certSer = pCertSer;
-        keyPairServidor = pKeyPairServidor;
         file = pFile;
+        resultados = resultadosP;
     }
 
     public DInseguro (Socket csP, int idP) {
@@ -74,10 +68,10 @@ public class DInseguro implements Runnable {
      * - Debe conservar el metodo como está.
      * - Es el único metodo permitido para escribir en el log.
      */
-    private void escribirMensaje(String pCadena) {
+    private void escribirMensaje(String pCadena,File f) {
 
         try {
-            FileWriter fw = new FileWriter(file,true);
+            FileWriter fw = new FileWriter(f,true);
             fw.write(pCadena + "\n");
             fw.close();
         } catch (Exception e) {
@@ -156,7 +150,6 @@ public class DInseguro implements Runnable {
             /***** Fase 4: *****/
             cadenas[3] = "";
             linea = dc.readLine();
-            registrarCpu();
             long comienzoTransaccion = System.currentTimeMillis();
             cadenas[3] = dlg + "recibio. continuando.";
             System.out.println(cadenas[3]);
@@ -166,7 +159,6 @@ public class DInseguro implements Runnable {
             linea = dc.readLine();
             System.out.println(dlg + "Recibio reto del cliente:-" + linea + "-");
             ac.println(linea);
-            registrarCpu();
             System.out.println(dlg + "envio reto . continuado.");
 
             linea = dc.readLine();
@@ -181,7 +173,6 @@ public class DInseguro implements Runnable {
 
             /***** Fase 6:  *****/
             linea = dc.readLine();
-            //aca hubo cambios
             System.out.println(dlg + "recibio cc :-" + linea + "-continuado.");
 
             linea = dc.readLine();
@@ -189,17 +180,14 @@ public class DInseguro implements Runnable {
             cadenas[5] = dlg + "recibio cc y clave - continuando";
 
             Random rand = new Random();
-            int valor = rand.nextInt(1000000);
+            int valor = rand.nextInt(10000);
             String strvalor = valor+"";
-            ac.println(strvalor);//aca hubo cambios
+            ac.println(strvalor);
             cadenas[6] = dlg + "envio valor "+strvalor+" . continuado.";
             System.out.println(cadenas[6]);
 
-            //byte [] hmac = S.hdg(strvalor.getBytes(), simetrica, algoritmos[3]);//aca hubo cambios
-            ac.println(strvalor.hashCode());//aca tambien
-            registrarCpu();
+            ac.println(strvalor.hashCode());
             long finalTransaccion = System.currentTimeMillis();
-            registrarTiempo(finalTransaccion-comienzoTransaccion);
             System.out.println(dlg + "envio hmac cifrado. continuado.");
 
             cadenas[7] = "";
@@ -216,12 +204,13 @@ public class DInseguro implements Runnable {
 
             synchronized(file) {
                 for (int i = 0; i < numCadenas; i++) {
-                    escribirMensaje(cadenas[i]);
+                    escribirMensaje(cadenas[i],file);
                 }
-                long tiempoTransaccion = finalTransaccion-comienzoTransaccion;
-                escribirMensaje(" tiempo de transaccion promedio: " + acumuladoTiempoTransaccion/TOTAL_TRANS + " milisegundos ");
-				escribirMensaje("errores totales : " + errores );
-				escribirMensaje(" cpu load acumulado: " + acumuladoCPU/TOTAL_TRANS);
+                
+//                escribirMensaje(" tiempo de transaccion promedio: " + acumuladoTiempoTransaccion + " milisegundos ",file);
+//				escribirMensaje("errores totales : " + errores ,file);
+//				escribirMensaje(" cpu load acumulado: " + acumuladoCPU,file);
+                escribirMensaje((finalTransaccion-comienzoTransaccion) + ":" + errores + ":" + getSystemCpuLoad(), resultados);
             }
 
         } catch (Exception e) {
@@ -230,12 +219,8 @@ public class DInseguro implements Runnable {
         }
     }
     
-    public synchronized void registrarCpu() throws Exception {
-		acumuladoCPU += getSystemCpuLoad();
-	}
-	public synchronized void registrarTiempo(long tiempo){
-		acumuladoTiempoTransaccion += tiempo;
-	}
+    
+	
 	private synchronized void errores(){
 		errores++;
 	}

@@ -33,13 +33,13 @@ public class Generator {
     }
     public static void main (String args[]){
 //    	System.out.println("1.Cliente Seguro");
-//    	System.out.println("2.Cliente Inseguro");
+
 //    	@SuppressWarnings("resource")
 //		Scanner sc = new Scanner(System.in);
 //    	String decision = sc.nextLine();
         for(int i = 0;i<10;i++){
         	
-        	Generator gen = new Generator("1");
+        	Generator gen = new Generator("2");
         	gen = null;
         	
         }
