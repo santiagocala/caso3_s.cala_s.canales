@@ -19,7 +19,7 @@ public class P {
 	private static final String MAESTRO = "MAESTRO: ";
 	private static X509Certificate certSer; /* acceso default */
 	private static KeyPair keyPairServidor; /* acceso default */
-	private static final int THREADS = 1;
+	private static final int THREADS = 2;
 
 	/**
 	 * @param args
@@ -46,6 +46,15 @@ public class P {
 		keyPairServidor = S.grsa();
 		certSer = S.gc(keyPairServidor);
 
+		File resultados = null;
+		String rutaResultados ="./resultados.txt";
+		resultados = new File(rutaResultados);
+		if (!resultados.exists()) {
+			resultados.createNewFile();
+
+		}
+		FileWriter fwR = new FileWriter(resultados);
+		fwR.close();
 		// Crea el archivo de log
 		if(decision.equals("1")){
 			File fileSeguro = null;
@@ -58,7 +67,7 @@ public class P {
 			FileWriter fw = new FileWriter(fileSeguro);
 			fw.close();
 
-			D.init(certSer, keyPairServidor, fileSeguro);
+			D.init(certSer, keyPairServidor, fileSeguro,resultados);
 		}
 		else if (decision.equals("2")){
 			File fileInseguro = null;

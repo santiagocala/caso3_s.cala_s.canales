@@ -32,7 +32,7 @@ public class D implements Runnable{
 	public static final String REC = "recibio-";
 	public static final int numCadenas = 8;
 	private static int errores = 0;
-	private final static int TOTAL_TRANS = 400;
+	private final static int TOTAL_TRANS = 200;
 	private static double acumuladoCPU = 0;
 	private static double acumuladoTiempoTransaccion = 0;
 
@@ -43,10 +43,12 @@ public class D implements Runnable{
 	private String dlg;
 	private byte[] mybyte;
 	private static File file;
+	private static File resultados;
 	private static X509Certificate certSer;
 	private static KeyPair keyPairServidor;
 	
-	public static void init(X509Certificate pCertSer, KeyPair pKeyPairServidor, File pFile) {
+	public static void init(X509Certificate pCertSer, KeyPair pKeyPairServidor, File pFile,File resultadosP) {
+		resultados = resultadosP;
 		certSer = pCertSer;
 		keyPairServidor = pKeyPairServidor;
 		file = pFile;
@@ -79,10 +81,10 @@ public class D implements Runnable{
 	 * - Debe conservar el metodo como está. 
 	 * - Es el único metodo permitido para escribir en el log.
 	 */
-	private void escribirMensaje(String pCadena) {
+	private void escribirMensaje(String pCadena,File f) {
 		
 		try {
-			FileWriter fw = new FileWriter(file,true);
+			FileWriter fw = new FileWriter(f,true);
 			fw.write(pCadena + "\n");
 			fw.close();
 		} catch (Exception e) {
@@ -166,7 +168,7 @@ public class D implements Runnable{
 						toByteArray(linea), 
 						keyPairServidor.getPrivate(), algoritmos[2] );
 				SecretKey simetrica = new SecretKeySpec(llaveSimetrica, 0, llaveSimetrica.length, algoritmos[1]);
-				registrarCpu();
+//				registrarCpu();
 				cadenas[3] = dlg + "recibio y creo llave simetrica. continuando.";
 				System.out.println(cadenas[3]);
 				
@@ -177,7 +179,7 @@ public class D implements Runnable{
 				byte[] retoByte = toByteArray(linea);
 				byte [ ] ciphertext1 = S.se(retoByte, simetrica, algoritmos[1]);
 				ac.println(toHexString(ciphertext1));
-				registrarCpu();
+//				registrarCpu();
 				System.out.println(dlg + "envio reto cifrado con llave simetrica al cliente. continuado.");
 
 				linea = dc.readLine();
@@ -217,9 +219,9 @@ public class D implements Runnable{
 				byte [] hmac = S.hdg(valorByte, simetrica, algoritmos[3]);
 				byte[] recibo = S.ae(hmac, keyPairServidor.getPrivate(), algoritmos[2]);
 				ac.println(toHexString(recibo));
-				registrarCpu();
+//				registrarCpu();
 				long finalTransaccion = System.currentTimeMillis();
-				registrarTiempo(finalTransaccion-comienzoTransaccion);
+//				registrarTiempo(finalTransaccion-comienzoTransaccion);
 				System.out.println(dlg + "envio hmac cifrado con llave privada del servidor. continuado.");
 
 				cadenas[7] = "";
@@ -236,12 +238,14 @@ public class D implements Runnable{
 
 				synchronized(file) {
 					for (int i = 0; i < numCadenas; i++) {
-						escribirMensaje(cadenas[i]);
+						escribirMensaje(cadenas[i],file);
 					}
 
-					escribirMensaje(" tiempo de transaccion: " + acumuladoTiempoTransaccion/TOTAL_TRANS + " milisegundos / total");
-					escribirMensaje("error : " + errores );
-					escribirMensaje(" cpu load acumulado: " + acumuladoCPU/TOTAL_TRANS);
+//					escribirMensaje(" tiempo promedio transaccion: " + (finalTransaccion-comienzoTransaccion) + " milisegundos",file);
+//					escribirMensaje("error : " + errores,file );
+//					escribirMensaje(" cpu load acumulado: " + getSystemCpuLoad(),file);
+					
+					escribirMensaje((finalTransaccion-comienzoTransaccion)+ ":" + errores + ":" + getSystemCpuLoad(), resultados );
 
 
 				}
@@ -252,12 +256,12 @@ public class D implements Runnable{
 	          e.printStackTrace();
 	        }
 	}
-	public synchronized void registrarCpu() throws Exception {
-		acumuladoCPU += getSystemCpuLoad();
-	}
-	public synchronized void registrarTiempo(long tiempo){
-		acumuladoTiempoTransaccion += tiempo;
-	}
+//	public synchronized void registrarCpu() throws Exception {
+//		acumuladoCPU += getSystemCpuLoad();
+//	}
+//	public synchronized void registrarTiempo(long tiempo){
+//		acumuladoTiempoTransaccion += tiempo;
+//	}
 	private synchronized void errores(){
 		errores++;
 	}
